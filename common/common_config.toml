@@ -1,0 +1,13 @@
+[paths]
+RESULT_PATH = 'E:\\output\\Astock\\stockpicking\\analysis\\tmp'
+STOCKLIST_PATH = 'E:\\output\\Astock\\stockpicking\\stocklist_test.csv'
+DATA_PATH = 'E:\\datas\\tdx\\day_2018_2025'
+
+[tushare]
+supabase_url = "https://xyz.supabase.co"
+supabase_key = "your-key-here"
+
+[params]
+initial_cash = 100000.0
+default_slippage = 0.001
+pyfolio_enabled = true
