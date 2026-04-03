@@ -1,15 +1,18 @@
 import tomllib
-from pathlib import Path
-from .schema import DATAFRAME, ConfigSchema
+import typing
 
-def load_settings(ConfigSchema):
+from . import schema
+from .schema import ConfigSchema
+from pathlib import Path
+
+class ConfigLoader(ConfigSchema):
     _instance = None
 
     def __new__(cls):
         #单例模式，
         if cls._instance is None:
-            cls._instance = super(load_settings, cls).__new__(cls)
-            cls._instance._load()
+            cls._instance = super(ConfigLoader, cls).__new__(cls)
+            cls._instance._init_loader()
         return cls._instance
     
     def _deep_merge(self, base, user):
@@ -20,31 +23,87 @@ def load_settings(ConfigSchema):
             else:
                 base[key] = value
 
-    def _apply_bindings(self, data):
+    def _resolve_paths(self, data: dict):
+        """解析路径占位符"""
+        # 1. 获取基础路径（从 paths 节点获取）
+        base_vars = data.get('base_path', {})
+        derived_node = data.get('derived_path', {})
+        
+        if not base_vars or not derived_node:
+            return
+
+        # 构造替换映射表
+        replacements = {f"{{{k}}}": str(v) for k, v in base_vars.items()}
+
+        def _recursive_replace(item):
+            if isinstance(item, str):
+                if '{' in item and '}' in item:
+                    for placeholder, real_val in replacements.items():
+                        item = item.replace(placeholder, real_val)
+                return item
+            
+            elif isinstance(item, dict):
+                return {k: _recursive_replace(v) for k, v in item.items()}
+            
+            elif isinstance(item, list):
+                return [_recursive_replace(i) for i in item]
+            
+            return item
+
+        # 执行解析并写回
+        data['derived_path'] = _recursive_replace(derived_node)
+
+    def _apply_bindings(self, data:dict):
         """核心：全自动绑定逻辑"""
-        # 定义需要将字符串 Key ("0", "1") 转为 DATAFRAME 枚举的集合
-        enum_mapped_keys = {'src_dir', 'file_extension', 'dst_dir', 'date_fmt'}
+        # --- 收集所有待处理节点 ---
+        all_configs = {}
+        
+        # 基础节点
+        for k, v in data.items():
+            if k not in ('base_path', 'derived_path'):
+                all_configs[k] = v
+        
 
-        for key, value in data.items():
-            # A. 处理特定的枚举映射字典
-            if key in enum_mapped_keys and isinstance(value, dict):
-                processed = {}
-                for k, v in value.items():
-                    try:
-                        enum_k = DATAFRAME(int(k))
-                        # 如果是目标路径，转为 Path 对象
-                        processed[enum_k] = Path(v) if key == 'dst_dir' else v
-                    except:
-                        processed[k] = v
-                setattr(self, key, processed)
+        all_configs['base_path'] = data.get('base_path', {})
 
-            # B. 处理 data_frame 列表（将 [0, 1] 转为 [DATAFRAME.DAY, ...]）
-            elif key == 'data_frame' and isinstance(value, list):
-                setattr(self, key, [DATAFRAME(i) for i in value])
+        # 派生节点扁平化,取消派出节点层级，直接访问子层级
+        derived_node = data.get('derived_path', {})
+        for sub_k, sub_v in derived_node.items():
+            all_configs[sub_k] = sub_v
 
-            # C. 普通项（paths, params, tushare, SHORT, etc.）
-            else:
-                setattr(self, key, value)
+        # --- 动态映射与绑定 ---
+        type_hints = typing.get_type_hints(ConfigSchema)
+        for key, value in all_configs.items():
+            hint = type_hints.get(key)
+            
+            # --- 场景 A：处理字典类型的映射 (如 dst_dir, dst_output_dir) ---
+            if hint and typing.get_origin(hint) is dict and isinstance(value, dict):
+                # 提取字典定义的 Key 类型 (例如 DATAFRAME)
+                args = typing.get_args(hint)
+                key_type, val_type = args[0], args[1]
+
+                # 如果 Key 是一个枚举类 (如 DATAFRAME 或 DATAFEED)
+                if isinstance(key_type, type) and issubclass(key_type, int):
+                    processed_dict = {}
+                    for k, v in value.items():
+                        try:
+                            # 自动根据注解类型进行转换 (IntEnum 用 int(k), 字符串枚举直接传)
+                            e_key = key_type(int(k))
+                            # 如果注解要求是 Path，则转换
+                            processed_val = Path(v) if val_type is Path else v
+                            processed_dict[e_key] = processed_val
+                        except (ValueError, TypeError):
+                            processed_dict[k] = v
+                    setattr(self, key, processed_dict)
+                    continue
+
+                # --- 场景 B：处理单个路径 (如 base_path 下的内容) ---
+                if val_type is Path:
+                    setattr(self, key, {k: Path(v) for k, v in value.items()})
+                    continue
+            
+            # --- 场景 C：普通绑定 ---
+            setattr(self, key, value)
 
     def _init_loader(self):
         # 定位公共目录, 允许项目使用自定义配置
@@ -64,7 +123,10 @@ def load_settings(ConfigSchema):
                 user_data = tomllib.load(f)
             self._deep_merge(final_data, user_data)
 
-        # 2. 动态绑定属性
+        # 2. 进行路径的自适应解析
+        self._resolve_paths(final_data)
+
+        # 3. 动态绑定属性
         self._apply_bindings(final_data)
 
-CONFIG = load_settings()
+CONFIG = ConfigLoader()

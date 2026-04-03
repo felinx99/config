@@ -1,12 +1,36 @@
 #存放环境、路径和开关的静态配置文件
-[paths]
-TDX_INSTALL_DATADIR = 'D:\\new_tdx\\vipdoc'
-TDX_DATA_PATH = 'F:\\datas\\tdx'
-TDX_DATA_PATH_DAY = 'F:\\datas\\tdx\\day_2018_2025'
-TDX_SECTOR_PATH = 'F:\\datas\\tdx\\sector'
-RESULT_PATH = 'F:\\output\\Astock\\stockpicking\\analysis\\tmp'
-STOCKLIST_PATH = 'F:\\output\\Astock\\stockpicking\\stocklist_test.csv'
 
+#section1: 全局变量区
+PERIOD = ['lday', 'fzline', 'minline'] #日线，5分钟，1分钟
+EXCHANGE = ['sh', 'sz', 'bj']
+
+SHORT = 5
+MID = 10
+LONG =20
+
+#section2: 普通节点区
+#基础路径区
+[base_path]
+TDX_INSTALL_DIR = 'D:\new_tdx\vipdoc'
+TDX_DATA_PATH = 'F:\datas\tdx'
+STOCK_OUTPUT_PATH = 'F:\\output\\Astock\\stockpicking'
+
+#派生路径区，toml不依赖缩进表示节点间的层级关系，使用缩进只是为了方便阅读
+[derived_path]
+    [derived_path.inferred_path]
+    TDX_SECTOR_PATH = '{TDX_DATA_PATH}\sector'
+
+    TDX_INSTALL_DATADIR = '{TDX_INSTALL_DIR}\vipdoc'
+    TDX_INSTALL_QUANT = '{TDX_INSTALL_DIR}\'
+
+    RESULT_PATH = '{STOCK_OUTPUT_PATH}\analysis\\tmp'
+    STOCKLIST_PATH = '{STOCK_OUTPUT_PATH}\stocklist_test.csv'
+
+    [derived_path.tdx_data_path] 
+    #这里路径名使用DATAFRAME，表示要使用DATAFRAME映射节点中的0,1,2
+    "0" = '{TDX_DATA_PATH}\day_2018_2025'
+    "1" = '{TDX_DATA_PATH}\5m_2025'
+    "2" = '{TDX_DATA_PATH}\1m_2025'
 
 [tushare]
 supabase_url = "https://xyz.supabase.co"
@@ -16,45 +40,6 @@ supabase_key = "your-key-here"
 initial_cash = 100000.0
 default_slippage = 0.001
 pyfolio_enabled = true
-
-
-PERIOD = ['lday', 'fzline', 'minline'] #日线，5分钟，1分钟
-EXCHANGE = ['sh', 'sz', 'bj']
-
-
-SHORT = 5
-MID = 10
-LONG =20
-
-
-#周期枚举映射 (Key 对应 DATAFRAME 的 int 值，key需要加引号)
-#class DATAFRAME(IntEnum):
-#    DAY = 0
-#    MINUTE5 = 1
-#    MINUTE1 = 2
-[src_dir] 
-"0" = 'lday'
-"1" = 'fzline'
-"2" = 'minline'
-
-
-[file_extension] 
-"0" = '*.day'
-"1" = '*.lc5'
-"2" = '*.lc1'
-
-
-[dst_dir] 
-"0": 'F:\\datas\\tdx\\day_2018_2025'
-"1": 'F:\\datas\\tdx\\5m_2025'
-"2": 'F:\\datas\\tdx\\1m_2025'
-
-data_frame = [0, 1, 2]
-
-[date_fmt]
-"0" = '%Y-%m-%d'
-"1" = '%Y-%m-%d %H:%M'
-"2" = '%Y-%m-%d %H:%M'
 
 [stock_csvtype]
 'open' = 'float32'
@@ -71,3 +56,25 @@ data_frame = [0, 1, 2]
 'l1' = 'SECTOR_L1'      #行业一级
 'l2' = 'SECTOR_L2'
 'l3' = 'SECTOR_L3'
+
+#section3: 节点区-DATAFRAME映射表区，Key对应 DATAFRAME的int值，key需要加引号
+#class DATAFRAME(IntEnum):
+#    DAY = 0
+#    MINUTE5 = 1
+#    MINUTE1 = 2
+[src_dir] 
+"0" = 'lday'
+"1" = 'fzline'
+"2" = 'minline'
+
+[file_extension] 
+"0" = '*.day'
+"1" = '*.lc5'
+"2" = '*.lc1'
+
+[date_fmt]
+"0" = '%Y-%m-%d'
+"1" = '%Y-%m-%d %H:%M'
+"2" = '%Y-%m-%d %H:%M'
+
+#section4: 节点区-DATAFEED映射表区
