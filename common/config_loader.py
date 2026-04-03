@@ -1,106 +1,70 @@
 import tomllib
 from pathlib import Path
-from typing import Optional
-from pydantic import BaseModel, Field, field_validator
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from .schema import DATAFRAME, ConfigSchema
 
+def load_settings(ConfigSchema):
+    _instance = None
 
-# 定位公共目录
-BASE_DIR = Path(__file__).parent.absolute()
-
-class PathConfig(BaseModel):
-    # 使用 Field 设置默认值或描述
-    tdx_raw: str = Field(default="D:/data/tdx", description="通达信原始数据路径")
-    parquet_store: str = Field(..., description="必须提供的 Parquet 存储路径")
-
-    @field_validator("tdx_raw")
-    @classmethod
-    def check_path_exists(cls, v: str) -> str:
-        # 校验器逻辑：如果路径不存在，打印警告或报错
-        if not Path(v).exists():
-            print(f"警告: 路径 {v} 目前不存在")
-        return v
-
-class BacktestConfig(BaseModel):
-    initial_cash: float = 100000.0
-    default_slippage: float = 0.001
-
-class MasterConfig(BaseModel):
-    paths: PathConfig
-    backtest: BacktestConfig
-    # 允许扩展其他 Section
-
-class SecretSettings(BaseModel):
-    supabase_key: str
-    binance_api_secret: str
-
-    class Config:
-        env_file = ".env"  # 告诉 Pydantic 自动去 .env 找这些变量
-        env_file_encoding = "utf-8"
-
-
-def load_settings(local_override: Optional[Path] = None) -> MasterConfig:
-    def _load_toml(p: Path) -> dict:
-        with open(p, "rb") as f:
-            return tomllib.load(f)
-
-    def _deep_update(dst: dict, src: dict) -> dict:
-        for k, v in src.items():
-            if isinstance(v, dict) and isinstance(dst.get(k), dict):
-                _deep_update(dst[k], v)
+    def __new__(cls):
+        #单例模式，
+        if cls._instance is None:
+            cls._instance = super(load_settings, cls).__new__(cls)
+            cls._instance._load()
+        return cls._instance
+    
+    def _deep_merge(self, base, user):
+        """合并用户配置"""
+        for key, value in user.items():
+            if isinstance(value, dict) and key in base:
+                base[key].update(value)
             else:
-                dst[k] = v
-        return dst
+                base[key] = value
 
-    # 1) 加载主配置（兼容历史文件名）
-    candidates = [BASE_DIR / "config.toml", BASE_DIR / "common_config.toml"]
-    base_path = next((p for p in candidates if p.exists()), None)
-    if base_path is None:
-        raise FileNotFoundError(f"未找到配置文件：{', '.join([str(p) for p in candidates])}")
+    def _apply_bindings(self, data):
+        """核心：全自动绑定逻辑"""
+        # 定义需要将字符串 Key ("0", "1") 转为 DATAFRAME 枚举的集合
+        enum_mapped_keys = {'src_dir', 'file_extension', 'dst_dir', 'date_fmt'}
 
-    raw = _load_toml(base_path)
+        for key, value in data.items():
+            # A. 处理特定的枚举映射字典
+            if key in enum_mapped_keys and isinstance(value, dict):
+                processed = {}
+                for k, v in value.items():
+                    try:
+                        enum_k = DATAFRAME(int(k))
+                        # 如果是目标路径，转为 Path 对象
+                        processed[enum_k] = Path(v) if key == 'dst_dir' else v
+                    except:
+                        processed[k] = v
+                setattr(self, key, processed)
 
-    # 2) 如果项目有私有配置，则覆盖（进阶技巧）
-    if local_override and local_override.exists():
-        raw_override = _load_toml(local_override)
-        raw = _deep_update(raw, raw_override)
+            # B. 处理 data_frame 列表（将 [0, 1] 转为 [DATAFRAME.DAY, ...]）
+            elif key == 'data_frame' and isinstance(value, list):
+                setattr(self, key, [DATAFRAME(i) for i in value])
 
-    # 3) 将不同结构的 TOML 统一成 MasterConfig 结构
-    # 期望结构: {paths: {tdx_raw, parquet_store, checkpoints}, backtest: {initial_cash, default_slippage}}
-    paths = raw.get("paths", {}) if isinstance(raw, dict) else {}
-    params = raw.get("params", {}) if isinstance(raw, dict) else {}
-    backtest_section = raw.get("backtest", {}) if isinstance(raw, dict) else {}
+            # C. 普通项（paths, params, tushare, SHORT, etc.）
+            else:
+                setattr(self, key, value)
 
-    # 首选已是目标字段名；否则尝试从 common_config.toml 的字段名映射
-    def pick_path(*keys: str, default: str = "") -> str:
-        for key in keys:
-            if key in paths and paths[key] is not None:
-                return str(paths[key])
-        return default
+    def _init_loader(self):
+        # 定位公共目录, 允许项目使用自定义配置
+        BASE_DIR = Path(__file__).parent.absolute()
+        base_toml = BASE_DIR / "settings.toml"
+        user_toml = BASE_DIR / "user_settings.toml"
 
-    initial_cash = (
-        backtest_section.get("initial_cash")
-        if isinstance(backtest_section, dict) and "initial_cash" in backtest_section
-        else params.get("initial_cash", 100000.0)
-    )
-    default_slippage = (
-        backtest_section.get("default_slippage")
-        if isinstance(backtest_section, dict) and "default_slippage" in backtest_section
-        else params.get("default_slippage", 0.001)
-    )
+        if not base_toml.exists():
+            raise FileNotFoundError(f"Base config missing: {base_toml}")
 
-    config_dict = {
-        "paths": {
-            "tdx_raw": pick_path("tdx_raw", "TDX_RAW", "DATA_PATH"),
-            "parquet_store": pick_path("parquet_store", "PARQUET_STORE", "RESULT_PATH"),
-            "checkpoints": pick_path("checkpoints", "CHECKPOINTS_PATH", "STOCKLIST_PATH", "RESULT_PATH"),
-        },
-        "backtest": {
-            "initial_cash": float(initial_cash),
-            "default_slippage": float(default_slippage),
-        },
-    }
+        # 1. 加载 & 合并配置
+        with open(base_toml, "rb") as f:
+            final_data = tomllib.load(f)
 
-    return MasterConfig(**config_dict)
+        if user_toml.exists():
+            with open(user_toml, "rb") as f:
+                user_data = tomllib.load(f)
+            self._deep_merge(final_data, user_data)
+
+        # 2. 动态绑定属性
+        self._apply_bindings(final_data)
 
 CONFIG = load_settings()

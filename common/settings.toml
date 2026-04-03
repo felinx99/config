@@ -1,0 +1,73 @@
+#存放环境、路径和开关的静态配置文件
+[paths]
+TDX_INSTALL_DATADIR = 'D:\\new_tdx\\vipdoc'
+TDX_DATA_PATH = 'F:\\datas\\tdx'
+TDX_DATA_PATH_DAY = 'F:\\datas\\tdx\\day_2018_2025'
+TDX_SECTOR_PATH = 'F:\\datas\\tdx\\sector'
+RESULT_PATH = 'F:\\output\\Astock\\stockpicking\\analysis\\tmp'
+STOCKLIST_PATH = 'F:\\output\\Astock\\stockpicking\\stocklist_test.csv'
+
+
+[tushare]
+supabase_url = "https://xyz.supabase.co"
+supabase_key = "your-key-here"
+
+[params]
+initial_cash = 100000.0
+default_slippage = 0.001
+pyfolio_enabled = true
+
+
+PERIOD = ['lday', 'fzline', 'minline'] #日线，5分钟，1分钟
+EXCHANGE = ['sh', 'sz', 'bj']
+
+
+SHORT = 5
+MID = 10
+LONG =20
+
+
+#周期枚举映射 (Key 对应 DATAFRAME 的 int 值，key需要加引号)
+#class DATAFRAME(IntEnum):
+#    DAY = 0
+#    MINUTE5 = 1
+#    MINUTE1 = 2
+[src_dir] 
+"0" = 'lday'
+"1" = 'fzline'
+"2" = 'minline'
+
+
+[file_extension] 
+"0" = '*.day'
+"1" = '*.lc5'
+"2" = '*.lc1'
+
+
+[dst_dir] 
+"0": 'F:\\datas\\tdx\\day_2018_2025'
+"1": 'F:\\datas\\tdx\\5m_2025'
+"2": 'F:\\datas\\tdx\\1m_2025'
+
+data_frame = [0, 1, 2]
+
+[date_fmt]
+"0" = '%Y-%m-%d'
+"1" = '%Y-%m-%d %H:%M'
+"2" = '%Y-%m-%d %H:%M'
+
+[stock_csvtype]
+'open' = 'float32'
+'high' = 'float32'
+'low' = 'float32'
+'close' = 'float32'
+'volume' = 'float64'
+
+[sector_type]
+'self' = 'SECTOR_SELF'  #自选股
+'hold' = 'SECTOR_HOLD'  #持仓股
+'all' = 'SECTOR_ALL'    #所有A股
+'concept' = 'SECTOR_CONCEPT'   #概念板块
+'l1' = 'SECTOR_L1'      #行业一级
+'l2' = 'SECTOR_L2'
+'l3' = 'SECTOR_L3'
