@@ -1,18 +1,3 @@
-config.local.json
 __pycache__
-data/stk/
-data/cash/
-data/price/
-data/info/*.p
-data/info/us*.csv
-data/info/ncav.csv
-data/info/*.xlsx
-tools/log/log
-logs/
-back/
-.ipynb_checkpoints
-.pylintrc
-fast_arrow_auth.json
-
 # Ignore poetry files
-.venv/
+.venv
