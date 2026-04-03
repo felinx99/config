@@ -41,5 +41,4 @@ class ConfigSchema:
     file_extension: Dict[DATAFRAME, str]
     tdx_data_path: Dict[DATAFRAME, Path]
     date_fmt: Dict[DATAFRAME, str]
-    data_frame: List[DATAFRAME]
     #节点区：DATAFEED映射表区，将被转换为DATAFEED, 枚举为Key
