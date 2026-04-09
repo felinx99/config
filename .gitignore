@@ -6,3 +6,4 @@ __pycache__
 
 # Ignore poetry files
 .venv/
+common/__pycache__/config_loader.cpython-312.pyc
