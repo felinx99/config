@@ -1,0 +1,8 @@
+config.local.json
+__pycache__
+.ipynb_checkpoints
+.pylintrc
+.env
+
+# Ignore poetry files
+.venv/
