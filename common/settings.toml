@@ -9,13 +9,14 @@ TARGET_BLOCK_NAME = 'ZFXG'
 SHORT = 5
 MID = 10
 LONG =20
+YEAR_DAYS = 244.0
 
 #section2: 普通节点区
 #基础路径区
 [base_path]
 TDX_INSTALL_DIR = 'D:\new_tdx'
-TDX_DATA_PATH = 'F:\datas\tdx'
-STOCK_OUTPUT_PATH = 'F:\output\Astock\stockpicking'
+TDX_DATA_PATH = 'E:\datas\tdx'
+STOCK_OUTPUT_PATH = 'E:\output\Astock\stockpicking'
 
 #派生路径区，toml不依赖缩进表示节点间的层级关系，使用缩进只是为了方便阅读
 [derived_path]
