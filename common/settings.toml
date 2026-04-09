@@ -1,0 +1,88 @@
+#存放环境、路径和开关的静态配置文件
+#变量映射要与schema.py中ConfigSchema的申明相一致
+
+#section1: 全局变量区
+PERIOD = ['lday', 'fzline', 'minline'] #日线，5分钟，1分钟
+EXCHANGE = ['sh', 'sz', 'bj']
+TARGET_BLOCK_NAME = 'ZFXG'
+
+SHORT = 5
+MID = 10
+LONG =20
+
+#section2: 普通节点区
+#基础路径区
+[base_path]
+TDX_INSTALL_DIR = 'D:\new_tdx'
+TDX_DATA_PATH = 'F:\datas\tdx'
+STOCK_OUTPUT_PATH = 'F:\output\Astock\stockpicking'
+
+#派生路径区，toml不依赖缩进表示节点间的层级关系，使用缩进只是为了方便阅读
+[derived_path]
+    [derived_path.inferred_path]
+    TDX_SECTOR_PATH = '{TDX_DATA_PATH}\sector'
+
+    TDX_INSTALL_DATADIR = '{TDX_INSTALL_DIR}\vipdoc'
+    TDX_INSTALL_QUANT = '{TDX_INSTALL_DIR}\PYPlugins\user'
+
+    RESULT_PATH = '{STOCK_OUTPUT_PATH}\analysis\temp'
+    AISTOCKPICK_RESULT_PATH = '{STOCK_OUTPUT_PATH}\analysis\temp\auto_select'
+    STOCKLIST_PATH = '{STOCK_OUTPUT_PATH}\stocklist.csv'
+    WATCHLIST_PATH = '{STOCK_OUTPUT_PATH}\test.csv'  # 周日扫描出的潜力股池
+
+    [derived_path.tdx_data_path] 
+    #此路径需要使用DATAFRAME映射
+    "0" = '{TDX_DATA_PATH}\day_2018_2025'
+    "1" = '{TDX_DATA_PATH}\5m_2025'
+    "2" = '{TDX_DATA_PATH}\1m_2025'
+
+[tushare]
+supabase_url = "https://xyz.supabase.co"
+supabase_key = "your-key-here"
+
+[params]
+initial_cash = 100000.0
+default_slippage = 0.001
+pyfolio_enabled = true
+VOLATILITY_PCT = 0.13  #用于箱体突破策略， 波动性百分比阈值。用小数表示百分比。
+BOX_PERIOD = 45  #用于箱体突破策略 计算波动性的周期长度，单位为交易日。
+SLOPE_THRESHOLD = 6.5    #用于行业筛选
+SLOPE_WINDOWS= 5    #用于行业筛选
+
+[stock_csvtype]
+'open' = 'float32'
+'high' = 'float32'
+'low' = 'float32'
+'close' = 'float32'
+'volume' = 'float64'
+
+[sector_type]
+'self' = 'SECTOR_SELF'  #自选股
+'hold' = 'SECTOR_HOLD'  #持仓股
+'all' = 'SECTOR_ALL'    #所有A股
+'concept' = 'SECTOR_CONCEPT'   #概念板块
+'l1' = 'SECTOR_L1'      #行业一级
+'l2' = 'SECTOR_L2'
+'l3' = 'SECTOR_L3'
+
+#section3: 节点区-DATAFRAME映射表区，Key对应 DATAFRAME的int值，key需要加引号
+#class DATAFRAME(IntEnum):
+#    DAY = 0
+#    MINUTE5 = 1
+#    MINUTE1 = 2
+[src_dir] 
+"0" = 'lday'
+"1" = 'fzline'
+"2" = 'minline'
+
+[file_extension] 
+"0" = '*.day'
+"1" = '*.lc5'
+"2" = '*.lc1'
+
+[date_fmt]
+"0" = '%Y-%m-%d'
+"1" = '%Y-%m-%d %H:%M'
+"2" = '%Y-%m-%d %H:%M'
+
+#section4: 节点区-DATAFEED映射表区
