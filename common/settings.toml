@@ -14,7 +14,7 @@ YEAR_DAYS = 244.0
 #section2: 普通节点区
 #基础路径区
 [base_path]
-TDX_INSTALL_DIR = 'D:\new_tdx'
+TDX_INSTALL_DIR = 'D:\new_tdx_test'
 TDX_DATA_PATH = 'E:\datas\tdx'
 STOCK_OUTPUT_PATH = 'E:\output\Astock\stockpicking'
 
@@ -46,7 +46,8 @@ initial_cash = 100000.0
 default_slippage = 0.001
 pyfolio_enabled = true
 VOLATILITY_PCT = 0.13  #用于箱体突破策略， 波动性百分比阈值。用小数表示百分比。
-BOX_PERIOD = 45  #用于箱体突破策略 计算波动性的周期长度，单位为交易日。
+BOX_INIT_PERIOD = 21 #用于箱体突破策略 计算初始箱体，单位为交易日。假设每月21交易日
+BOX_PERIOD = 84  #用于箱体突破策略 计算波动性的周期长度，单位为交易日。
 SLOPE_THRESHOLD = 6.5    #用于行业筛选
 SLOPE_WINDOWS= 5    #用于行业筛选
 

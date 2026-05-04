@@ -29,6 +29,8 @@ class ConfigSchema:
     SHORT: int
     MID: int
     LONG: int
+    TARGET_BLOCK_NAME: str
+    YEAR_DAYS: float
     # 普通节点区，注意基础路径和派生路径
     base_path: Dict[str, Path]
     inferred_path: Dict[str, Path]
