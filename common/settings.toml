@@ -50,6 +50,8 @@ BOX_INIT_PERIOD = 21 #用于箱体突破策略 计算初始箱体，单位为交
 BOX_PERIOD = 84  #用于箱体突破策略 计算波动性的周期长度，单位为交易日。
 SLOPE_THRESHOLD = 6.5    #用于行业筛选
 SLOPE_WINDOWS= 5    #用于行业筛选
+ATR_WINDOW = 10         # ATR计算窗口：10天
+ATR_MULT = 4        # ATR吊灯止损法倍率
 
 [stock_csvtype]
 'open' = 'float32'
