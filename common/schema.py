@@ -1,6 +1,7 @@
 from enum import IntEnum
 from pathlib import Path
 from typing import Dict, List, Any
+import pyarrow as pa
 
 #定义了 DATAFRAME 等枚举，用于程序理解数据的逻辑结构
 class DATAFRAME(IntEnum):
@@ -43,4 +44,12 @@ class ConfigSchema:
     file_extension: Dict[DATAFRAME, str]
     tdx_data_path: Dict[DATAFRAME, Path]
     date_fmt: Dict[DATAFRAME, str]
-    #节点区：DATAFEED映射表区，将被转换为DATAFEED, 枚举为Key
+    timeframe: Dict[int, str]
+    # 节点区：schema表区, Level2数据各列数据格式，不可变数量，类型pa.Schema
+    SNAPSHOT_SCHEMA: pa.Schema           # 快照 (Snapshots)
+    DEAL_SCHEMA: pa.Schema            # 逐笔成交 (Deals)
+    ORDER_SCHEMA: pa.Schema           # 逐笔委托 (Orders)
+    ORDERRAW_SCHEMA: pa.Schema           # 逐笔委托 (Orders)
+    INDEX_SCHEMA: pa.Schema           # 指数行情 (Index)
+    LEVEL2_METRICS_SCHEMA: pa.Schema  # 之前的日度衍生指标
+

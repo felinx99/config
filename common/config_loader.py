@@ -1,5 +1,6 @@
 import tomllib
 import typing
+import pyarrow as pa
 
 from . import schema
 from .schema import ConfigSchema
@@ -75,9 +76,10 @@ class ConfigLoader(ConfigSchema):
         type_hints = typing.get_type_hints(ConfigSchema)
         for key, value in all_configs.items():
             hint = type_hints.get(key)
+            if not hint: continue
             
             # --- 场景 A：处理字典类型的映射 (如 dst_dir, dst_output_dir) ---
-            if hint and typing.get_origin(hint) is dict and isinstance(value, dict):
+            if typing.get_origin(hint) is dict and isinstance(value, dict):
                 # 提取字典定义的 Key 类型 (例如 DATAFRAME)
                 args = typing.get_args(hint)
                 key_type, val_type = args[0], args[1]
@@ -97,10 +99,31 @@ class ConfigLoader(ConfigSchema):
                     setattr(self, key, processed_dict)
                     continue
 
-                # --- 场景 B：处理单个路径 (如 base_path 下的内容) ---
+                # --- 场景 A1：处理单个路径 (如 base_path 下的内容) ---
                 if val_type is Path:
                     setattr(self, key, {k: Path(v) for k, v in value.items()})
                     continue
+            # --- 场景 B：处理 pa.Schema 对象类型的映射
+            if hint is pa.Schema and isinstance(value, dict):
+                pyarrow_type_mapper = {
+                        "int32": pa.int32(),
+                        "int64": pa.int64(),
+                        "float32": pa.float32(),
+                        "float64": pa.float64(),
+                        "float": pa.float32(),                        
+                        "double": pa.float64(),
+                        "string": pa.string()
+                    }
+                try:
+                    # 动态组装 PyArrow 字段
+                    schema_fields = [
+                        (field_name, pyarrow_type_mapper[type_str]) 
+                        for field_name, type_str in value.items()
+                    ]
+                    setattr(self, key, pa.schema(schema_fields))
+                    continue
+                except KeyError as e:
+                    raise TypeError(f"❌ 配置文件中存在未知的 PyArrow 类型映射字符: {e} (位于 [{key}] 节点)")
             
             # --- 场景 C：普通绑定 ---
             setattr(self, key, value)

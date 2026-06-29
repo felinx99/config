@@ -14,9 +14,13 @@ YEAR_DAYS = 244.0
 #section2: 普通节点区
 #基础路径区
 [base_path]
-TDX_INSTALL_DIR = 'D:\new_tdx_test'
-TDX_DATA_PATH = 'E:\datas\tdx'
+TDX_INSTALL_DIR = 'G:\new_tdx_test'
+TDX_DATA_PATH = 'G:\datas\tdx'
 STOCK_OUTPUT_PATH = 'E:\output\Astock\stockpicking'
+LEVEL2_TEMP = 'G:\l2_test'
+A_LEVEL2 = 'H:\level2'
+LEVEL2_WORKSHAPCE_PATH = 'G:\datalake'
+
 
 #派生路径区，toml不依赖缩进表示节点间的层级关系，使用缩进只是为了方便阅读
 [derived_path]
@@ -30,6 +34,8 @@ STOCK_OUTPUT_PATH = 'E:\output\Astock\stockpicking'
     AISTOCKPICK_RESULT_PATH = '{STOCK_OUTPUT_PATH}\analysis\temp\auto_select'
     STOCKLIST_PATH = '{STOCK_OUTPUT_PATH}\stocklist.csv'
     WATCHLIST_PATH = '{STOCK_OUTPUT_PATH}\test.csv'  # 周日扫描出的潜力股池
+
+    LEVEL2_BUFFER_PATH = '{LEVEL2_WORKSHAPCE_PATH}\01_buffer\tick\CN_STOCK'
 
     [derived_path.tdx_data_path] 
     #此路径需要使用DATAFRAME映射
@@ -89,4 +95,169 @@ ATR_MULT = 4        # ATR吊灯止损法倍率
 "1" = '%Y-%m-%d %H:%M'
 "2" = '%Y-%m-%d %H:%M'
 
-#section4: 节点区-DATAFEED映射表区
+[timeframe]
+"0" = 'Ticks'
+"1" = 'MicroSeconds'
+"2" = 'Seconds'
+"3" = 'Minutes'
+"4" = 'Days'
+"5" = 'Weeks'
+"6" = 'Months'
+"7" = 'Years'
+"8" = 'NoTimeFrame'
+
+[SNAPSHOT_SCHEMA]
+AskOrder1 = 'int32'
+AskOrder2 = 'int32'
+AskOrder3 = 'int32'
+AskOrder4 = 'int32'
+AskOrder5 = 'int32'
+AskOrder6 = 'int32'
+AskOrder7 = 'int32'
+AskOrder8 = 'int32'
+AskOrder9 = 'int32'
+AskOrder10 = 'int32'
+AskPrice1 = 'int32'
+AskPrice2 = 'int32'
+AskPrice3 = 'int32'
+AskPrice4 = 'int32'
+AskPrice5 = 'int32'
+AskPrice6 = 'int32'
+AskPrice7 = 'int32'
+AskPrice8 = 'int32'
+AskPrice9 = 'int32'
+AskPrice10 = 'int32'
+AskVolume1 = 'int64'
+AskVolume2 = 'int64'
+AskVolume3 = 'int64'
+AskVolume4 = 'int64'
+AskVolume5 = 'int64'
+AskVolume6 = 'int64'
+AskVolume7 = 'int64'
+AskVolume8 = 'int64'
+AskVolume9 = 'int64'
+AskVolume10 = 'int64'
+BidOrder1 = 'int32'
+BidOrder2 = 'int32'
+BidOrder3 = 'int32'
+BidOrder4 = 'int32'
+BidOrder5 = 'int32'
+BidOrder6 = 'int32'
+BidOrder7 = 'int32'
+BidOrder8 = 'int32'
+BidOrder9 = 'int32'
+BidOrder10 = 'int32'
+BidPrice1 = 'int32'
+BidPrice2 = 'int32'
+BidPrice3 = 'int32'
+BidPrice4 = 'int32'
+BidPrice5 = 'int32'
+BidPrice6 = 'int32'
+BidPrice7 = 'int32'
+BidPrice8 = 'int32'
+BidPrice9 = 'int32'
+BidPrice10 = 'int32'
+BidVolume1 = 'int64'
+BidVolume2 = 'int64'
+BidVolume3 = 'int64'
+BidVolume4 = 'int64'
+BidVolume5 = 'int64'
+BidVolume6 = 'int64'
+BidVolume7 = 'int64'
+BidVolume8 = 'int64'
+BidVolume9 = 'int64'
+BidVolume10 = 'int64'
+DealNum = 'int64'
+Price = 'int32'
+SecuCode = 'int32'
+TickTime = 'int32'
+TickTimeDiff = 'int32'
+TotalAskVolume = 'int64'
+TotalBidVolume = 'int64'
+TotalDealNum = 'int64'
+TotalTurnover = 'float64'
+TotalVolume = 'int64'
+TradingDay = 'int32'
+Turnover = 'float64'
+Volume = 'int64'
+WeightAskPrice = 'float32'
+WeightBidPrice = 'float32'
+#('__index_level_0__', pa.int64()),
+# ... 你可以根据需要把所有百个字段写全
+
+[DEAL_SCHEMA]
+BizIndex = 'int32'
+BuyID = 'int64'
+Channel = 'int32'
+DealID = 'int64'
+DealTime = 'int32'
+Price = 'int32'
+SecuCode = 'int32'
+SellID = 'int64'
+Side = 'int32'
+TradingDay = 'int32'
+Volume = 'int64'
+#('__index_level_0__', pa.int64()),
+# ... 你可以根据需要把所有百个字段写全
+
+[ORDER_SCHEMA]
+BizIndex = 'int32'
+Channel = 'int32'
+DBOrderID = 'int64'
+LastPrice = 'int32'
+OrderID = 'int64'
+OrderTime = 'int32'
+OrderType = 'int32'
+Price = 'int32'
+SecuCode = 'int32'
+TradingDay = 'int32'
+Volume = 'int64'
+#('__index_level_0__', pa.int64()),
+# ... 你可以根据需要把所有百个字段写全
+
+[ORDERRAW_SCHEMA]
+BizIndex = 'int32'
+Channel = 'int32'
+DBOrderID = 'int64'
+OrderID = 'int64'
+OrderTime = 'int32'
+OrderType = 'int32'
+Price = 'int32'
+SecuCode = 'int32'
+TradingDay = 'int32'
+Volume = 'int64'
+#('__index_level_0__', pa.int64()),
+# ... 你可以根据需要把所有百个字段写全
+
+[INDEX_SCHEMA]
+ClosePrice = 'int32'
+HighPrice = 'int32'
+LowPrice = 'int32'
+OpenPrice = 'int32'
+PrevClosePrice = 'int32'
+SecuCode = 'int32'
+SeqNo = 'int64'
+CumTurnover = 'float64'
+TickTime = 'int32'
+CumVolume = 'int64'
+Turnover = 'float64'
+Volume = 'int64'
+#('__index_level_0__', pa.int64()),
+# ... 你可以根据需要把所有百个字段写全
+
+[LEVEL2_METRICS_SCHEMA]
+TradeDate = 'int32'                     # 交易日 (如 20260603)
+SecuCode = 'int32'                      # 股票代码 (如 "000001")
+daily_total_volume = 'int64'            # 当日总成交量
+daily_total_turnover = 'float64'        # 当日总成交额
+daily_buy_sweep_vol = 'int64'           # 多头扫盘总成交量
+daily_buy_sweep_turnover = 'float64'    # 多头扫盘总成交额
+buy_sweep_count = 'int32'               # 多头扫盘总次数
+buy_pulse_count = 'int32'               # 脉冲时段多头扫盘次数
+daily_sell_sweep_vol = 'int64'          # 空头扫盘总成交量
+daily_sell_sweep_turnover = 'float64'   # 空头扫盘总成交额
+sell_sweep_count = 'int32'              # 空头扫盘总次数
+sell_pulse_count = 'int32'              # 脉冲时段空头扫盘次数
+buy_sweep_ratio = 'float32'             # 多头扫盘比例
+sell_sweep_ratio = 'float32'            # 空头扫盘比例
+
