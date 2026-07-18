@@ -14,12 +14,13 @@ YEAR_DAYS = 244.0
 #section2: 普通节点区
 #基础路径区
 [base_path]
-TDX_INSTALL_DIR = 'G:\new_tdx_test'
-TDX_DATA_PATH = 'G:\datas\tdx'
+TDX_INSTALL_DIR = 'D:\new_tdx_test'
+TDX_DATA_PATH = 'E:\datas\tdx'
 STOCK_OUTPUT_PATH = 'E:\output\Astock\stockpicking'
-LEVEL2_TEMP = 'G:\l2_test'
+LEVEL2_TEMP = 'E:\l2'
 A_LEVEL2 = 'H:\level2'
-LEVEL2_WORKSHAPCE_PATH = 'G:\datalake'
+LEVEL2_WORKSHAPCE_PATH = 'E:\datalake'
+LEVEL2_BUFFER_PATH = 'G:\tick\CN_STOCK'
 
 
 #派生路径区，toml不依赖缩进表示节点间的层级关系，使用缩进只是为了方便阅读
@@ -34,8 +35,6 @@ LEVEL2_WORKSHAPCE_PATH = 'G:\datalake'
     AISTOCKPICK_RESULT_PATH = '{STOCK_OUTPUT_PATH}\analysis\temp\auto_select'
     STOCKLIST_PATH = '{STOCK_OUTPUT_PATH}\stocklist.csv'
     WATCHLIST_PATH = '{STOCK_OUTPUT_PATH}\test.csv'  # 周日扫描出的潜力股池
-
-    LEVEL2_BUFFER_PATH = '{LEVEL2_WORKSHAPCE_PATH}\01_buffer\tick\CN_STOCK'
 
     [derived_path.tdx_data_path] 
     #此路径需要使用DATAFRAME映射
@@ -107,6 +106,21 @@ ATR_MULT = 4        # ATR吊灯止损法倍率
 "8" = 'NoTimeFrame'
 
 [SNAPSHOT_SCHEMA]
+SecuCode = 'int32'
+TradingDay = 'int32'
+TickTime = 'int32'
+TickTimeDiff = 'int32'
+Price = 'int32'
+TotalAskVolume = 'int64'
+WeightAskPrice = 'float32'
+TotalBidVolume = 'int64'
+WeightBidPrice = 'float32'
+TotalDealNum = 'int64'
+TotalVolume = 'int64'
+TotalTurnover = 'float64'
+DealNum = 'int64'
+Volume = 'int64'
+Turnover = 'float64'
 AskOrder1 = 'int32'
 AskOrder2 = 'int32'
 AskOrder3 = 'int32'
@@ -167,79 +181,78 @@ BidVolume7 = 'int64'
 BidVolume8 = 'int64'
 BidVolume9 = 'int64'
 BidVolume10 = 'int64'
-DealNum = 'int64'
-Price = 'int32'
-SecuCode = 'int32'
-TickTime = 'int32'
-TickTimeDiff = 'int32'
-TotalAskVolume = 'int64'
-TotalBidVolume = 'int64'
-TotalDealNum = 'int64'
-TotalTurnover = 'float64'
-TotalVolume = 'int64'
-TradingDay = 'int32'
-Turnover = 'float64'
-Volume = 'int64'
-WeightAskPrice = 'float32'
-WeightBidPrice = 'float32'
 #('__index_level_0__', pa.int64()),
 # ... 你可以根据需要把所有百个字段写全
 
 [DEAL_SCHEMA]
-BizIndex = 'int32'
-BuyID = 'int64'
+BizIndex = 'int64'
 Channel = 'int32'
-DealID = 'int64'
-DealTime = 'int32'
-Price = 'int32'
 SecuCode = 'int32'
-SellID = 'int64'
-Side = 'int32'
 TradingDay = 'int32'
+DealTime = 'int32'
+DealID = 'int64'
+Side = 'int32'
+BuyID = 'int64'
+SellID = 'int64'
 Volume = 'int64'
+Price = 'int32'
 #('__index_level_0__', pa.int64()),
 # ... 你可以根据需要把所有百个字段写全
 
 [ORDER_SCHEMA]
-BizIndex = 'int32'
+BizIndex = 'int64'
 Channel = 'int32'
 DBOrderID = 'int64'
-LastPrice = 'int32'
-OrderID = 'int64'
-OrderTime = 'int32'
-OrderType = 'int32'
-Price = 'int32'
 SecuCode = 'int32'
 TradingDay = 'int32'
+OrderTime = 'int32'
+OrderID = 'int64'
+OrderType = 'int32'
+Price = 'int32'
 Volume = 'int64'
+LastPrice = 'int32'
 #('__index_level_0__', pa.int64()),
 # ... 你可以根据需要把所有百个字段写全
 
 [ORDERRAW_SCHEMA]
-BizIndex = 'int32'
+BizIndex = 'int64'
 Channel = 'int32'
 DBOrderID = 'int64'
-OrderID = 'int64'
-OrderTime = 'int32'
-OrderType = 'int32'
-Price = 'int32'
 SecuCode = 'int32'
 TradingDay = 'int32'
+OrderTime = 'int32'
+OrderID = 'int64'
+OrderType = 'int32'
+Price = 'int32'
 Volume = 'int64'
 #('__index_level_0__', pa.int64()),
 # ... 你可以根据需要把所有百个字段写全
 
+[CANCEL_SCHEMA]
+DealTime = 'int32'
+DealID = 'int64'
+Side = 'int32'
+BuyID = 'int64'
+SellID = 'int64'
+Volume = 'int64'
+Price = 'int32'
+CancelPrice = 'int32'
+OBLevel = 'int32'
+QueuePos = 'int32'
+#('__index_level_0__', pa.int64()),
+# ... 你可以根据需要把所有百个字段写全
+
 [INDEX_SCHEMA]
-ClosePrice = 'int32'
-HighPrice = 'int32'
-LowPrice = 'int32'
-OpenPrice = 'int32'
+SeqNo = 'int64'
 PrevClosePrice = 'int32'
 SecuCode = 'int32'
-SeqNo = 'int64'
-CumTurnover = 'float64'
 TickTime = 'int32'
+CumTurnover = 'float64'
 CumVolume = 'int64'
+OpenPrice = 'int32'
+HighPrice = 'int32'
+LowPrice = 'int32'
+ClosePrice = 'int32'
 Turnover = 'float64'
 Volume = 'int64'
 #('__index_level_0__', pa.int64()),

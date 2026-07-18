@@ -49,7 +49,8 @@ class ConfigSchema:
     SNAPSHOT_SCHEMA: pa.Schema           # 快照 (Snapshots)
     DEAL_SCHEMA: pa.Schema            # 逐笔成交 (Deals)
     ORDER_SCHEMA: pa.Schema           # 逐笔委托 (Orders)
-    ORDERRAW_SCHEMA: pa.Schema           # 逐笔委托 (Orders)
+    ORDERRAW_SCHEMA: pa.Schema           # 原始逐笔委托 (Orders_raw)
+    CANCEL_SCHEMA: pa.Schema           # 逐笔撤单 (Cancels)
     INDEX_SCHEMA: pa.Schema           # 指数行情 (Index)
     LEVEL2_METRICS_SCHEMA: pa.Schema  # 之前的日度衍生指标
 
